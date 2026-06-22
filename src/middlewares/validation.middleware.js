@@ -1,7 +1,7 @@
 
-const validation = (schema) => {
+const validationMiddleware = (schema) => {
     return (req, res, next) => {
-        const { error, value } = schema.validation(req.body, {
+        const { error, value } = schema.validate(req.body, {
             abortEarly: false
         });
 
@@ -18,6 +18,5 @@ const validation = (schema) => {
 }
 
 
-module.exports ={
-    validation
-}
+module.exports =
+    validationMiddleware
