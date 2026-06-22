@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 
 const getAccessToken =(payload)=> {
-  return jwt.sign(payload,process.env.ACCESS_SECRET,{expiresIn:'15m'})
+  return jwt.sign(payload,process.env.ACCESS_SECRET,{expiresIn:'24h'})
 };
 
 const getRefreshToken = (payload)=>{

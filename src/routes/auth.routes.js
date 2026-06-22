@@ -1,13 +1,15 @@
 const express = require('express');
 const validationMiddleware = require('../middlewares/validation.middleware');
-const {registerSchema} = require('../validations/auth.validation')
-const {registerController} = require('../controllers/auth.controllers')
-const { route } = require('..');
+const {registerSchema,verifyEmail,resendVerifyEmailOTP} = require('../validations/auth.validation')
+const {registerController,verifyEmailController,resendVerifyEmailController} = require('../controllers/auth.controllers')
+
 
 const routes = express.Router();
 
 
-route.post("register",validationMiddleware(registerSchema),registerController)
+routes.post("/register",validationMiddleware(registerSchema),registerController)
+routes.post("/verify-email",validationMiddleware(verifyEmail),verifyEmailController)
+routes.post("/resend-verify-email-otp",validationMiddleware(resendVerifyEmailOTP),resendVerifyEmailController)
 
 
 
