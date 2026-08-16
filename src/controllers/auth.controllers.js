@@ -1,11 +1,9 @@
 const authServices = require("../services/auth.service")
 
 
-const registerController = async (req, res) => {
+const registerController = async (req, res,next) => {
     try {
         const user = await authServices.registerUser(req.body);
-        console.log("user",user)
-
 
         return res.status(201).json({
             success: true,
@@ -13,18 +11,7 @@ const registerController = async (req, res) => {
         });
 
     } catch (error) {
-        console.log("Eoororo", error.message)
-        if (error.message === "User already exists.") {
-            return res.status(409).json({
-                success: false,
-                message: error.message
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        next(error);
 
     }
 }

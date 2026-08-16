@@ -3,32 +3,54 @@ const bcrypt = require('bcrypt');
 const { generateSecureOTP, getExpireTime, generateOTP } = require('../utils/otp')
 const { OTP_PURPOSE } = require("../constant/index")
 const { getAccessToken, getRefreshToken } = require('../utils/jwt');
-
+const { NotFoundError, ConflictError } = require("../error/index")
 const { sendMail } = require("../utils/nodemailer");
 
 //Register USER
 const registerUser = async (userData) => {
 
     const checkUser = await authRepositories.findUserByEmail(userData.email);
-    if (checkUser.rows.length > 0) {
-        throw new Error("User already exists.")
-    }
+
+    if (checkUser) throw new ConflictError('User already exists.');
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-    const otpCode = await generateSecureOTP();
+    const otpCode = await generateOTP()
     const otpExpiresAt = getExpireTime();
 
-    const userPayload = [userData.name, userData.email, hashedPassword, false, "local"]
+    // const userPayload = [userData.name, userData.email, hashedPassword, false, "local"]
+    const userPayload = {
+        name: userData.name,
+        email: userData.email,
+        password: hashedPassword,
+        is_verified: false,
+        auth_provider: "local"
+    };
 
-    const otpPayload = [otpCode, OTP_PURPOSE.EMAIL_VERIFICATION, otpExpiresAt, false]
 
 
-    return await authRepositories.createUser(
+    const otpPayload = {
+        secureOtp: otpCode.secureOtp, 
+        purpose: OTP_PURPOSE.EMAIL_VERIFICATION,
+        expireAt: otpExpiresAt, 
+        verified: false
+    }
+
+
+
+    const { createdUser, createdOtp } = await authRepositories.createUser(
         userPayload,
         otpPayload
     );
 
+    await sendOtpToEmail({ email: userData.email, value: otpCode.value });
+
+
+    return {
+        id: createdUser.id,
+        email: createdUser.email,
+        message: "OTP SEND SUCCCESFUL"
+    }
 
 
 }
@@ -110,15 +132,13 @@ const verifyEmail = async (userData) => {
 
 
 const resendEmailVerificationOtp = async ({ email, purpose }) => {
-    const { rows } = await authRepositories.findUserByEmail(email);
-    const user = rows[0];
-
-    if (rows.length === 0) {
-        throw new Error("User did not found.");
-    }
+    const data = await authRepositories.findUserByEmail(email);
+    const user = data;
+    console.log("sdfadfdsf", user)
+    if (!user) throw new NotFoundError('User');
 
     if (user.is_verified) {
-        throw new Error("Email already verified");
+        throw new ConflictError("Email already verified");
     }
 
     return resendOtp({
@@ -127,6 +147,24 @@ const resendEmailVerificationOtp = async ({ email, purpose }) => {
         purpose: OTP_PURPOSE[purpose]
     });
 };
+
+
+const sendOtpToEmail = async (data) => {
+
+    const sendMeg =
+    {
+        from: '"IVIK" <ibhux1125@gmail.com>', // sender address
+        to: data.email, // list of recipients
+        subject: "Resend Otp", // subject line
+        text: "Hello world?", // plain text body
+        html: `<b>OTP ${data.value}</b>`, // HTML body
+
+    }
+
+
+    await sendMail(sendMeg);
+
+}
 
 const resendOtp = async (userData) => {
 

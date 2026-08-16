@@ -8,6 +8,8 @@ const createUser = async (userPayload, otpPayload) => {
         client = await pool.connect();
 
         await client.query("BEGIN");
+        const { name, email, password, is_verified, auth_provider } = userPayload;
+        const {secureOtp, purpose,expireAt,verified} = otpPayload;
 
         const insertUserQuery = `
             INSERT INTO users (
@@ -23,7 +25,9 @@ const createUser = async (userPayload, otpPayload) => {
 
         const { rows } = await client.query(
             insertUserQuery,
-            userPayload
+            [
+                name, email, password, is_verified, auth_provider
+            ]
         );
 
         const createdUser = rows[0];
@@ -40,15 +44,15 @@ const createUser = async (userPayload, otpPayload) => {
             RETURNING *;
         `;
 
-        const otpParams = [
-            createdUser.id,
-            ...otpPayload
-        ];
+        // const otpParams = [
+        //     createdUser.id,
+        //     ...otpPayload
+        // ];
 
-        console.log("OTP Purose", otpParams);
+        // console.log("OTP Purose", otpParams);
         const { rows: otpRows } = await client.query(
             insertOtpQuery,
-            otpParams
+            [ createdUser.id,secureOtp, purpose,expireAt,verified]
         );
 
         const createdOtp = otpRows[0];
@@ -76,8 +80,6 @@ const updateUserVerified = async (userUpdateParams,
     otpUpdateParams
 ) => {
     let client;
-
-
 
     try {
 
@@ -156,18 +158,11 @@ const saveRefreshToken = async (payload) => {
 
 
 const findUserByEmail = async (email) => {
-    try {
-        const text = `
-      SELECT id, name, email, is_verified,
-             profile_image, auth_provider
-      FROM users
-      WHERE email = $1
-    `;
-
-        return await db(text, [email]);
-    } catch (error) {
-        console.log("findUserByEmail error", error.message)
-    }
+    const result = await pool.query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+    );
+    return result.rows[0] || null;
 
 }
 

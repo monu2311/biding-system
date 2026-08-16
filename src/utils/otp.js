@@ -3,13 +3,13 @@ const bcrypt = require('bcrypt');
 const { serialize } = require('v8');
 
 const generateSecureOTP = async () => {
-  const value = (crypto.randomInt(1000, 10000)).toString();
+  const value = (crypto.randomInt(100000, 10000000)).toString();
   console.log("genrate OTP  ==>", value)
   return await bcrypt.hash(value, 10);
 };
 
 const generateOTP = async () => {
-  const value = (crypto.randomInt(1000, 10000)).toString();
+  const value = (crypto.randomInt(100000, 10000000)).toString();
   const secureOtp = await bcrypt.hash(value, 10)
   return {
     value,
