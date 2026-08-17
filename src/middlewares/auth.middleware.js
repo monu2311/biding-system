@@ -1,16 +1,15 @@
 const jwt = require('jsonwebtoken');
+const {UnauthorizedError} = require("../error/index");
 
 
-export const authenticate = (req, res, next) => {
+ const authenticate = (req, res, next) => {
     try {
         const token =
             req.headers.authorization?.split(" ")[1];
 
 
         if (!token) {
-            return res.status(401).json({
-                message: "Token missing"
-            });
+           return next(new UnauthorizedError('Token missing'));
         }
 
 
@@ -21,9 +20,13 @@ export const authenticate = (req, res, next) => {
         next();
 
     } catch (error) {
-        console.log("Error in auth middleware ")
+        if (error.name === 'TokenExpiredError') {
+        return next(new UnauthorizedError('Token expired'))
+        }
+       return next(new UnauthorizedError('Invalid token'));
+        
     }
 }
 
 
-// module.exports= authenticate
+module.exports= {authenticate}

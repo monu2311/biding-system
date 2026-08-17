@@ -5,6 +5,12 @@ const registerSchema = joi.object({
     name:joi.string().max(30).required(),
     email:joi.string().email().required(),
     password: joi.string().required()
+});
+
+
+const loginSchema = joi.object({
+     email:joi.string().email().required(),
+    password: joi.string().required()
 })
 
 
@@ -18,12 +24,12 @@ const verifyEmail = joi.object({
 const resendVerifyEmailOTP = joi.object({
     purpose:joi.string().required(),
     email:joi.string().required(),
-    
 })
 
 
 module.exports ={
     registerSchema,
     verifyEmail,
-    resendVerifyEmailOTP
+    resendVerifyEmailOTP,
+    loginSchema
 }

@@ -1,5 +1,5 @@
 // src/middlewares/error.middleware.js
-const { AppError } = require('../errors');
+// const { AppError } = require('../errors');
 
 const errorMiddleware = (err, req, res, next) => {
   // Default to 500 if no status was set
