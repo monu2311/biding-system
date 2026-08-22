@@ -313,6 +313,16 @@ const updateOTPbyUser = async (
 
 };
 
+const findUserById = async (id) => {
+    const { rows } = await pool.query(
+        `SELECT id, name, email, is_verified, auth_provider 
+         FROM users WHERE id = $1`,
+        [id]
+    );
+    return rows[0] || null;
+};
+
+
 
 
 module.exports = {
@@ -327,5 +337,6 @@ module.exports = {
     findRefreshTokenEmail,
     DeleteRefreshTokenId,
     updateRefreshToken,
-    findRefreshTokenById
+    findRefreshTokenById,
+    findUserById
 }

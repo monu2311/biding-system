@@ -6,13 +6,15 @@ const errorMiddleware = require("./middlewares/error.middleware");
 const cookieParser = require('cookie-parser');
 const logger = require('./config/logger');
 const requestLogger = require('./middlewares/requestLogger.middleware');
+const { globalLimiter } = require("./config/limiters");
 
 require('dotenv').config();
 const app = express();
 
+app.use(globalLimiter);
+app.use(requestLogger);
 
 app.use(helemt())
-app.use(requestLogger);
 app.use(cookieParser()); 
 
 app.use(
