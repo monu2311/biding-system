@@ -44,12 +44,6 @@ const createUser = async (userPayload, otpPayload) => {
             RETURNING *;
         `;
 
-        // const otpParams = [
-        //     createdUser.id,
-        //     ...otpPayload
-        // ];
-
-        // console.log("OTP Purose", otpParams);
         const { rows: otpRows } = await client.query(
             insertOtpQuery,
             [createdUser.id, secureOtp, purpose, expireAt, verified]
@@ -244,7 +238,7 @@ const createOtp = async (data) => {
 
 
 const findOTPbyUserId = async (userId, purpose) => {
-    console.log("asasda", purpose)
+    // console.log("asasda", purpose)
     try {
         const text = `
         SELECT *

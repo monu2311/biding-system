@@ -1,13 +1,11 @@
-const { level } = require("winston");
 const logger = require("../config/logger");
 const { v4: uuid } = require('uuid');
-const { date } = require("joi");
 
 
 
 const requestLogger = (req, res, next) => {
 
-    req.requestId = uuidv4();
+    req.requestId = uuid();
 
     const start = Date.now();
 
@@ -17,6 +15,7 @@ const requestLogger = (req, res, next) => {
         logger.info({
             event: 'http.request',
             requestId: req.requestId,
+             message: `${req.method} ${req.originalUrl} ${res.statusCode}`,  
             method: req.method,
             url: req.originalUrl,
             statusCode: res.statusCode,

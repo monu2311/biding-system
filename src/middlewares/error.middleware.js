@@ -8,6 +8,16 @@ const errorMiddleware = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
 
   if (err.isOperational) {
+      logger.warn({
+            event: 'operational.error',
+            statusCode: err.statusCode,
+            message: err.message,
+            method: req.method,
+            url: req.originalUrl,
+            userId: req.user?.id || null
+        });
+
+        
     // Safe — we know what this is
     return res.status(err.statusCode).json({
       success: false,
