@@ -1,19 +1,20 @@
 const express = require("express");
 const helemt = require('helmet');
-const morgan = require('morgan');
 const cors = require('cors')
 const {routes} = require("./routes/auth.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
 const cookieParser = require('cookie-parser');
-
+const logger = require('./config/logger');
+const requestLogger = require('./middlewares/requestLogger.middleware');
+const { globalLimiter } = require("./config/limiters");
 
 require('dotenv').config();
 const app = express();
 
+app.use(globalLimiter);
+app.use(requestLogger);
 
-app.use(helemt());
-app.use(morgan("dev"));
-
+app.use(helemt())
 app.use(cookieParser()); 
 
 app.use(

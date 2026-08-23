@@ -1,11 +1,23 @@
 // src/middlewares/error.middleware.js
 // const { AppError } = require('../errors');
 
+const logger = require("../config/logger");
+
 const errorMiddleware = (err, req, res, next) => {
   // Default to 500 if no status was set
   err.statusCode = err.statusCode || 500;
 
   if (err.isOperational) {
+      logger.warn({
+            event: 'operational.error',
+            statusCode: err.statusCode,
+            message: err.message,
+            method: req.method,
+            url: req.originalUrl,
+            userId: req.user?.id || null
+        });
+
+        
     // Safe — we know what this is
     return res.status(err.statusCode).json({
       success: false,
@@ -17,7 +29,15 @@ const errorMiddleware = (err, req, res, next) => {
 
   // NOT operational — programmer error or unknown crash
   // Log the full error internally (you'd use a logger here)
-  console.error('UNHANDLED ERROR:', err);
+  logger.error({
+    event: 'unhandled.error',
+    environment: process.env.NODE_ENV || 'development',
+    userId: req.user?.id || null,
+    method: req.method,
+    url: req.originalUrl,
+    message: err.message,
+    stack: err.stack        // ← actual stack trace from error object
+});
 
   // Never leak internal details to client
   return res.status(500).json({

@@ -19,9 +19,6 @@ const generateOTP = async () => {
 
 
 const getExpireTime = () => {
-
-  console.log("currennt TIme = ", new Date());
-  console.log("v TIme = ", new Date(new Date().getTime() + 3 * 60 * 1000));
    return  new Date(new Date().getTime() + 3 * 60 * 1000);
 }
 
